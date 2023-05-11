@@ -33,3 +33,19 @@ create table portaria_festa_junina(
 
 
 
+#Ambiente de desenvolvimento
+DEBUG=true
+
+#Conexão oracle
+ORACLE_USER=integracao_api
+ORACLE_PASSWORD=iwn_3pw
+#ORACLE_CONNECT_STRING_PRODUCTION=""
+#ORACLE_CONNECT_STRING_DEV=""
+ORACLE_CONNECT_STRING_PRODUCTION=""
+ORACLE_CONNECT_STRING_DEV =""
+# MYSQL
+MYSQL_HOST="localhost"
+MYSQL_USER="admin"
+MYSQL_PORT=3306
+MYSQL_PASSWORD="admin"
+MYSQL_DATABASE="teste"
