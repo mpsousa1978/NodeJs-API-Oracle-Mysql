@@ -35,6 +35,7 @@ create table portaria_festa_junina(
 
 #Ambiente de desenvolvimento
 DEBUG=true
+# Conexoes
 
 #Conexão oracle
 ORACLE_USER=integracao_api
