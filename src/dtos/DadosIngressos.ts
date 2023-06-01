@@ -17,6 +17,7 @@ class DadosIngressos {
   faixa_idade: string;
   cpf: string;
   condicao: string;
+  tempo_afpesp_dias: number;
 }
 
 export { DadosIngressos }

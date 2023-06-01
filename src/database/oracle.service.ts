@@ -21,27 +21,17 @@ export class OracleService implements OnModuleDestroy {
   async connect() {
     if (!this.isConnected) {
       try {
-        let connectString = process.env.ORACLE_CONNECT_STRING_PRODUCTION
-        //Debug
-        if (process.env.DEBUG === 'true') {
-          connectString = process.env.ORACLE_CONNECT_STRING_DEV
-        }
-        //console.log(process.env.ORACLE_USER)
-        //console.log(process.env.ORACLE_PASSWORD)
+        const connectString = process.env.ORACLE_CONNECT_STRING
 
         this.connection = await oracledb.getConnection({
           user: process.env.ORACLE_USER,
           password: process.env.ORACLE_PASSWORD,
           connectString: connectString
         });
-        this.isConnected = true;
-        //console.log(connectString)
 
-        if (process.env.DEBUG === 'true') {
-          console.log("Conectado ao oracle DESE")
-        } else {
-          console.log("Conectado ao oracle Produção")
-        }
+        this.isConnected = true;
+        console.log("Conectado ao oracle " + process.env.ORACLE_CONNECT_STRING)
+
       } catch (error) {
         console.log(`Erro ao conectar banco oracle ${error}`)
       }
@@ -140,8 +130,8 @@ export class OracleService implements OnModuleDestroy {
           faixa_idade: rowData.FAIXA_IDADE,
           cpf: rowData.CPF,
           condicao: rowData.DSC_CONDICAO,
+          tempo_afpesp_dias: rowData.TEMPO_AFPESP_DIAS
         }
-
         listaIngresso.push(ingressoData)
       }
 

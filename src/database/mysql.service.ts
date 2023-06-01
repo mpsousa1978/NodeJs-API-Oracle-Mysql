@@ -31,6 +31,7 @@ export class MysqlService implements OnModuleDestroy {
         this.isConnected = true;
         console.log(`Conectado ao mysql:${process.env.MYSQL_DATABASE}`)
       } catch (error) {
+        console.log(error);
         setTimeout(() => this.connect(), 5000);
       }
     }
@@ -90,11 +91,12 @@ export class MysqlService implements OnModuleDestroy {
     }
   }
 
-  async getLista(pSql: string): Promise<GetIngresso> {
+  async getLista(pSql: string, params?: any[]): Promise<GetIngresso> {
+
     try {
       const connection = await this.getConnection();
 
-      const [rows, fields] = await connection.query(pSql)
+      const [rows, fields] = await connection.query(pSql, params)
 
       //const lista: DadosIngressos[] = rows as unknown as DadosIngressos[];
 
@@ -122,6 +124,7 @@ export class MysqlService implements OnModuleDestroy {
           faixa_idade: rowData.faixa_idade,
           cpf: rowData.cpf,
           condicao: rowData.condicao,
+          tempo_afpesp_dias: rowData.tempo_afpesp_dias
         }
 
         listaIngresso.push(ingressoData)
@@ -138,7 +141,7 @@ export class MysqlService implements OnModuleDestroy {
       } else {
         const resultFormat: GetIngresso = {
           po_retorno: 2,
-          po_msg: 'Não encontrado registro',
+          po_msg: 'Não existem registros',
           po_rs: []
           //po_rs: lista
         }
@@ -151,12 +154,13 @@ export class MysqlService implements OnModuleDestroy {
     }
   }
 
+
   async findIngresso(ingresso: string): Promise<QRCode> {
     try {
       const connection = await this.getConnection();
-      //const [rowsd, fieldsd] = await connection.execute("update afpesp.portaria_festa_junina set check_in =null ")
+      //const [rowsd, fieldsd] = await connection.execute("update portaria_festa_junina set check_in =null ")
 
-      const [rows, fields] = await connection.execute("select * from afpesp.portaria_festa_junina where ingresso= ?", [ingresso])
+      const [rows, fields] = await connection.execute("select * from portaria_festa_junina where ingresso= ?", [ingresso])
 
       const qrcoderesult = new QRCode();
 
@@ -183,7 +187,7 @@ export class MysqlService implements OnModuleDestroy {
   async findQrCode(qrcode: string): Promise<QRCode> {
     try {
       const connection = await this.getConnection();
-      const [rows, fields] = await connection.execute("select * from afpesp.portaria_festa_junina where qrcode= ?", [qrcode])
+      const [rows, fields] = await connection.execute("select * from portaria_festa_junina where qrcode= ?", [qrcode])
 
       const qrcoderesult = new QRCode();
 
@@ -210,7 +214,7 @@ export class MysqlService implements OnModuleDestroy {
   async findCpf(pCpf: string): Promise<QRCode> {
     try {
       const connection = await this.getConnection();
-      const [rows, fields] = await connection.execute("select * from afpesp.portaria_festa_junina where cpf= ?", [pCpf])
+      const [rows, fields] = await connection.execute("select * from portaria_festa_junina where cpf= ?", [pCpf])
 
       const qrcoderesult = new QRCode();
 
@@ -238,29 +242,29 @@ export class MysqlService implements OnModuleDestroy {
     const status = new Status();
     const connection = await this.getConnection();
     try {
-      await connection.execute("update afpesp.portaria_festa_junina set check_in=now() where id_portaria_festa_junina= ?", [id_portaria_festa_junina])
-      //const [rows, fields] = await connection.execute("select * from afpesp.portaria_festa_junina where id_portaria_festa_junina= ?", [id_portaria_festa_junina])
-      const [rows, fields] = await connection.execute("select count(1) as qtd_entrada from afpesp.portaria_festa_junina where check_in is not null")
+      await connection.execute("update portaria_festa_junina set check_in=now() where id_portaria_festa_junina= ?", [id_portaria_festa_junina])
+      //const [rows, fields] = await connection.execute("select * from portaria_festa_junina where id_portaria_festa_junina= ?", [id_portaria_festa_junina])
+      const [rows, fields] = await connection.execute("select count(1) as qtd_entrada from portaria_festa_junina where check_in is not null")
 
       status.code = 1
-      status.message = "Feita baixa QRCode"
+      status.message = "Entrada liberada"
       status.qtd_entrada = rows[0].qtd_entrada
       return status;
 
     } catch (err) {
 
       status.code = 1
-      status.message = "Error ao fazer baixa: " + err
+      status.message = "Ocorreu um erro ao ler o QRCode: " + err
       status.qtd_entrada = 0
       return status;
     }
   }
 
-  async insereIngresso({ id_cupom, ingresso, qrcode, id_estab, id_setor, matricula, nome, idade, nascimento, sexo, parentesco, valor, faixa_idade, cpf, condicao }: DadosIngressos): Promise<void> {
+  async insereIngresso({ id_cupom, ingresso, qrcode, id_estab, id_setor, matricula, nome, idade, nascimento, sexo, parentesco, valor, faixa_idade, cpf, condicao, tempo_afpesp_dias }: DadosIngressos): Promise<void> {
 
     const connection = await this.getConnection();
-    const sql = "insert into afpesp.portaria_festa_junina (id_cupom, ingresso,qrcode, id_estab, id_setor, matricula,nome,idade,nascimento,sexo,Parentesco,valor,faixa_idade,cpf,condicao) values ?"
-    const values = [[id_cupom, ingresso, qrcode, id_estab, id_setor, matricula, nome, idade, nascimento, sexo, parentesco, valor, faixa_idade, cpf, condicao]]
+    const sql = "insert into portaria_festa_junina (id_cupom, ingresso,qrcode, id_estab, id_setor, matricula,nome,idade,nascimento,sexo,Parentesco,valor,faixa_idade,cpf,condicao,tempo_afpesp_dias) values ?"
+    const values = [[id_cupom, ingresso, qrcode, id_estab, id_setor, matricula, nome, idade, nascimento, sexo, parentesco, valor, faixa_idade, cpf, condicao, tempo_afpesp_dias]]
 
     try {
       await connection.query(sql, [values])
@@ -270,4 +274,58 @@ export class MysqlService implements OnModuleDestroy {
 
     }
   }
+
+
+
+  async getTotal(pSql: string) {
+    try {
+      const connection = await this.getConnection();
+      const [rows, fields] = await connection.query(pSql)
+      const final = {
+        "total": rows[0].total
+      }
+      return final
+    }
+    catch (err) {
+      console.error(err);
+    }
+  }
+
+  async getRelatorios(pSql: string) {
+    try {
+      const connection = await this.getConnection();
+      const [rows, fields] = await connection.query(pSql)
+
+      type Aniversariante = {
+        nome: string;
+        cpf: string;
+        idade?: string;
+      };
+
+      const aniversariantes = [];
+      const aniversariantesBanco = rows as Aniversariante[];
+
+      console.log(aniversariantesBanco);
+
+      for (let i = 0; i < aniversariantesBanco.length; i++) {
+
+        aniversariantes.push(
+          {
+            "nome": aniversariantesBanco[i].nome,
+            "cpf": aniversariantesBanco[i].cpf,
+            "idade": aniversariantesBanco[i].idade
+          }
+        )
+      }
+
+      return aniversariantes;
+    }
+    catch (err) {
+      console.error(err);
+    }
+  }
+
+
+
+
 }

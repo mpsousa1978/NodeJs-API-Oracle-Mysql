@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { DataBaseModule } from './database/database.module';
-import { testConnectModule } from './testConnect/testConnect.module';
-import { PortariaModule } from './portaria/portaria.modules';
+import { SensorModule } from './sensor/sensor.module';
+import { PortariaModule } from './portaria/portaria.module';
+import { LoggingModule } from './logging/logging.module';
 
 @Module({
-  imports: [DataBaseModule, testConnectModule, PortariaModule],
+  imports: [DataBaseModule, SensorModule, PortariaModule, LoggingModule],
 })
-export class AppModule { } 
+export class AppModule { }  

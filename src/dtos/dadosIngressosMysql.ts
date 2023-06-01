@@ -17,6 +17,7 @@ class DadosIngressosMysql {
   sorteio: number;
   cpf: string;
   condicao: string;
+  tempo_afpesp_dias: number;
 }
 
 export { DadosIngressosMysql }

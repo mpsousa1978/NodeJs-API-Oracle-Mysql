@@ -17,4 +17,5 @@ export class DadosIngressosOracle {
   SORTEIO: number;
   CPF: string;
   DSC_CONDICAO: string;
+  TEMPO_AFPESP_DIAS: number;
 }
